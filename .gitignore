@@ -1,2 +1,10 @@
 
 .idea/
+
+database/__pycache__/
+
+extract/__pycache__/
+
+twitte/__pycache__/
+
+util/__pycache__/

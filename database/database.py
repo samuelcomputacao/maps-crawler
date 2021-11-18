@@ -3,8 +3,8 @@ import psycopg2
 class DataBase:
     connection = None
 
-    def __init__(self):
-        self.connection = psycopg2.connect(host='localhost', database='transito', user='postgres', password='12345')
+    def __init__(self, host='', database='', user='', password=''):
+        self.connection = psycopg2.connect(host=host, database=database, user=user, password=password)
 
     def __selectTable(self, table = '', coluns=["*"], where=[]):
         where.append("1=1")
@@ -62,7 +62,7 @@ class DataBase:
               "uf VARCHAR(2) NOT NULL ," \
               "br INTEGER NOT NULL," \
               "km INTEGER NOT NULL," \
-              "data DATE)"
+              "data TIMESTAMP )"
         cur = self.connection.cursor()
         cur.execute(sql)
         self.connection.commit()
