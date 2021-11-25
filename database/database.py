@@ -53,6 +53,15 @@ class DataBase:
                     cur.execute(sql)
             self.connection.commit()
 
+    def calculaKM(self, data):
+        sql = f"SELECT ST_ASGEOJSON(calculate_km({data['km']},'{data['uf'].upper()}','{data['br']}'))"
+        cur = self.connection.cursor()
+        cur.execute(sql)
+        rs = cur.fetchall()
+        cur.close()
+        ponto = rs[0][0]
+        return ponto
+
     def getNotificacoes(self, coluns=["*"], where=[]):
         return self.__selectTable(table='notificacoes', coluns=coluns, where=where)
 
@@ -62,14 +71,16 @@ class DataBase:
               "uf VARCHAR(2) NOT NULL ," \
               "br INTEGER NOT NULL," \
               "km INTEGER NOT NULL," \
-              "data TIMESTAMP )"
+              "latitude DECIMAL NOT NULL," \
+              "longitude DECIMAL NOT NULL," \
+              "texto VARCHAR(2000) NOT NULL," \
+              "data TIMESTAMP)"
         cur = self.connection.cursor()
         cur.execute(sql)
         self.connection.commit()
-        rodovias = self.getRodoviasFederais(where=[f"vl_br='{notificacao['br']}'", f"vl_km_inic<={notificacao['km']}", f"vl_km_fina>={notificacao['km']}", f"LOWER(sg_uf)='{notificacao['uf']}'"])
-        if not len(self.getNotificacoes(where=[f"id = '{notificacao['id']}'"])) > 0 and len(rodovias) > 0:
-            sql = f"INSERT INTO notificacoes (id,uf, br, km, data)" \
-                  f" VALUES ('{notificacao['id']}','{notificacao['uf']}','{notificacao['br']}',{notificacao['km']},'{notificacao['date']}')"
+        if not len(self.getNotificacoes(where=[f"id = '{notificacao['id']}'"])) > 0:
+            sql = f"INSERT INTO notificacoes (id,uf, br, km, latitude, longitude, texto, data)" \
+                  f" VALUES ('{notificacao['id']}','{notificacao['uf']}','{notificacao['br']}',{notificacao['km']},{notificacao['latitude']},{notificacao['longitude']},'{notificacao['texto']}','{notificacao['date']}')"
             cur.execute(sql)
         self.connection.commit()
 

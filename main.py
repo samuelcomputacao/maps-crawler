@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime, timedelta
 from database.database import DataBase
 from twitte.tweetAPI import TweetAPI
@@ -151,7 +152,13 @@ def execute(api, dataBase, MUNICIPIOS, ESTADOS):
         if classificate(tw):
             data = getData(tw, MUNICIPIOS, ESTADOS)
             if data is not None:
-                dataBase.salvarNotificacao(data)
+                ponto = dataBase.calculaKM(data)
+                if ponto is not None:
+                    ponto = json.loads(ponto)['coordinates']
+                    data['longitude'] = ponto[0]
+                    data['latitude'] = ponto[1]
+                    data['texto'] = tw['text']
+                    dataBase.salvarNotificacao(data)
 
 dataBase = DataBase(host=HOST, database=DATABASE, user=USER, password=PASSWORD)
 api = TweetAPI(consumer_key=CONSUMER_KEY, consumer_secret=CONSUMER_SECRET,
